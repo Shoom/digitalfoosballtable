@@ -16,9 +16,10 @@ main(cli)
 
 async function main(cli) {
   const app = await server({
-    port: cli.flags.port || 1337,
+    redirectPort: cli.flags.redirectPort || process.env.REDIRECTPORT || 1338,
+    port: cli.flags.port || process.env.PORT || 1337,
     public: cli.flags.public || './public'
   });
 
-  console.log(`Started ${cli.pkg.name} server at http://localhost:${app.port}`);
+  console.log(`Started ${cli.pkg.name} server at http://localhost:${app.port}:${app.redirectPort}`);
 }

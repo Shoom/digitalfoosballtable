@@ -34,10 +34,10 @@ function server(options = {}) {
         res.sendStatus(302);
         res.end(`<a href="https://${process.env.DOMAIN}">https://${process.env.DOMAIN}</a>`);
       });
-      redirectHttp.listen(options.port + 1);
+      redirectHttp.listen(options.redirectPort || options.port + 1);
       const credentials = { key: privateKey, cert: certificate };
       server = https.createServer(credentials);
-      console.log(`SSL:${process.env.DOMAIN}:${options.port}`);
+      console.log(`SSL:${process.env.DOMAIN}:${options.redirectPort}:${options.port}`);
     } catch (e) {
       server = http.createServer();
       console.log(`HTTP:${process.env.DOMAIN}:${options.port}`);
@@ -73,7 +73,7 @@ function server(options = {}) {
 
     server.on('request', app);
 
-    server.listen(options.port, () => resolve({app, port: options.port}));
+    server.listen(options.port, () => resolve({app, ...options}));
   });
 }
 
