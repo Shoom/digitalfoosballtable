@@ -1,4 +1,5 @@
-const {createServer} = require('http');
+const http = require('http');
+const https = require('https');
 const bodyParser = require('body-parser');
 const {EventEmitter} = require('events');
 const browserify = require('browserify');
@@ -19,7 +20,27 @@ module.exports = server;
 function server(options = {}) {
   return new Promise((resolve) => {
     const game = new Game();
-    const server = createServer();
+
+    let privateKey = null;
+    let certificate = null;
+    let server = null;
+    try {
+      privateKey = fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/privkey.pem`, 'utf8');
+      certificate = fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/fullchain.pem`, 'utf8');
+      const redirectHttp = express();
+      redirectHttp.get('/*', (req, res, next) => {
+        res.location(`https://${process.env.DOMAIN}`);
+        res.sendStatus(302);
+        res.end(`<a href="https://${process.env.DOMAIN}">https://${process.env.DOMAIN}</a>`);
+      });
+      redirectHttp.listen(options.port + 1);
+      const credentials = { key: privateKey, cert: certificate };
+      server = https.createServer(credentials);
+      console.log(`SSL:${process.env.DOMAIN}:${options.port}`);
+    } catch (e) {
+      server = http.createServer();
+      console.log(`HTTP:${process.env.DOMAIN}:${options.port}`);
+    }
 
     gpio.setup(TEAM_ONE_PIN, gpio.DIR_IN, gpio.EDGE_FALLING);
     gpio.setup(TEAM_TWO_PIN, gpio.DIR_IN, gpio.EDGE_FALLING);
