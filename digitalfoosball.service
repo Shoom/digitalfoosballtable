@@ -1,0 +1,19 @@
+[Unit]
+Description=Digital Foosball
+Requires=snap.docker.dockerd.service
+Wants=network-online.target
+After=snap.docker.dockerd.service network-online.target
+X-Snappy=yes
+
+[Service]
+ExecPreStart=/usr/bin/snap run docker rm --force digifuus
+ExecStart=/usr/bin/snap run docker run  -e PORT=443 -e REDIRECTPORT=80 -e DOMAIN=digitalfoosball.adviser.com -v /home/etc/letsencrypt:/etc/letsencrypt --privileged --network eth0.109 --ip 192.168.109.1 --name digifuus digifuus 
+ExecStop=/usr/bin/snap run docker rm --force digifuus
+SyslogIdentifier=digitalfoosball
+Restart=on-failure
+WorkingDirectory=/var/snap/docker/181
+#TimeoutStopSec=30
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
