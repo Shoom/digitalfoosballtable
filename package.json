@@ -20,13 +20,13 @@
     "mock-require": "^2.0.2"
   },
   "dependencies": {
-    "body-parser": "^1.18.2",
     "browserify": "^14.5.0",
+    "body-parser": "^1.18.2",
     "dat-gui": "^0.5.0",
     "express": "^4.16.2",
     "lodash": "^4.17.4",
     "resolve-from": "^4.0.0",
-    "rpi-gpio": "^0.9.1",
+    "wiring-pi": "^2.2.1",
     "sse-express": "^1.0.2"
   }
 }

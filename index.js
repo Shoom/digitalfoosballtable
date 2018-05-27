@@ -7,14 +7,20 @@ const browserify = require('browserify');
 const express = require('express');
 const resolveFrom = require('resolve-from');
 const sse = require('sse-express');
-const getGpio = require('./get-gpio');
+const wpi = require('wiring-pi');
 
-const gpio = getGpio({fallback: true});
-
-const TEAM_ONE_PIN = 5;
-const TEAM_TWO_PIN = 3;
-const TEAM_ONE = 'team1';
-const TEAM_TWO = 'team2';
+const cfg = {
+  Teams: {
+	  TeamOne: {
+		pin: 7
+		name: 'team1'
+	  }
+	  TeamTwo: {
+		pin: 9
+		name: 'team2'
+	  }
+  }
+};
 
 module.exports = server;
 
@@ -43,16 +49,16 @@ function server(options = {}) {
       console.log(`HTTP:${process.env.DOMAIN}:${options.port}`);
     }
 
-    gpio.setup(TEAM_ONE_PIN, gpio.DIR_IN, gpio.EDGE_FALLING);
-    gpio.setup(TEAM_TWO_PIN, gpio.DIR_IN, gpio.EDGE_FALLING);
-
-    gpio.on('change', function(channel, value) {
-      if (channel === TEAM_ONE_PIN) {
-        game.countScore(TEAM_ONE);
-      }
-      if (channel === TEAM_TWO_PIN) {
-        game.countScore(TEAM_TWO);
-      }
+    wpi.setup('wpi');
+    console.log(`runson: ${wpi.piBoardId()} ${wpi.piBoardRev()}`);
+    Object.values(cfg.Teams).forEach(team => {
+      console.log(`team on: ${team.name} ${team.pin}`);
+      wpi.pinMode(team.pin, wpi.INPUT);
+      wpi.pullUpDnControl(team.pin, wpi.PUD_UP);
+      wpi.wiringPiISR(team.pin, wpi.INT_EDGE_FALLING, function(delta) {
+	  console.log(`${team.name} Pin ${team.pin} changed to LOW (', delta, ')`);
+          game.countScore(team.name);
+      });
     });
 
     const app = express()
