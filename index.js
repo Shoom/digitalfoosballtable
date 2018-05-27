@@ -12,11 +12,11 @@ const wpi = require('wiring-pi');
 const cfg = {
   Teams: {
 	  TeamOne: {
-		pin: 7
+		pin: 7,
 		name: 'team1'
-	  }
+	  },
 	  TeamTwo: {
-		pin: 9
+		pin: 9,
 		name: 'team2'
 	  }
   }
