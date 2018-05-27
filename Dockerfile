@@ -27,7 +27,7 @@ Type=notify\n\
 \n\
 [Install]\n\
 WantedBy=multi-user.target\n\
-Alias=dnsmasq.service\n' > /etc/systemd/system/dnsmasq.service
+Alias=digital-dnsmasq.service\n' > /etc/systemd/system/digital-dnsmasq.service
 
 RUN echo '[Unit]\n\
 Description=DigitalFoosball\n\
@@ -46,7 +46,9 @@ WantedBy=multi-user.target\n\
 Alias=digitalfoosball.service\n' > /etc/systemd/system/digitalfoosball.service
 
 RUN systemctl enable digitalfoosball.service ; \
-    systemctl enable dnsmasq.service
+    systemctl disable dnsmasq.service ; \
+    systemctl enable digital-dnsmasq.service ; \
+    true
 
 WORKDIR /digitalfoosballtable
 
