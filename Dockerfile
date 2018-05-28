@@ -50,11 +50,16 @@ RUN systemctl enable digitalfoosball.service ; \
     systemctl enable digital-dnsmasq.service ; \
     true
 
-WORKDIR /digitalfoosballtable
+RUN cd / && \
+    git clone git://git.drogon.net/wiringPi && \
+    cd wiringPi && \
+    ./build 
 
 RUN cd / && \
   git clone https://github.com/mabels/digitalfoosballtable.git && \
   cd /digitalfoosballtable && \
   npm install
+
+WORKDIR /digitalfoosballtable
 
 CMD ["/bin/systemd"]
