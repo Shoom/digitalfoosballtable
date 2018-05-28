@@ -16,7 +16,7 @@ const cfg = {
 		name: 'team1'
 	  },
 	  TeamTwo: {
-		pin: 9,
+		pin: 11,
 		name: 'team2'
 	  }
   }
@@ -56,7 +56,7 @@ function server(options = {}) {
       wpi.pinMode(team.pin, wpi.INPUT);
       wpi.pullUpDnControl(team.pin, wpi.PUD_UP);
       wpi.wiringPiISR(team.pin, wpi.INT_EDGE_FALLING, function(delta) {
-	  console.log(`${team.name} Pin ${team.pin} changed to LOW (', delta, ')`);
+	        console.log(`${team.name} Pin ${team.pin} changed to LOW (', delta, ')`);
           game.countScore(team.name);
       });
     });
