@@ -16,6 +16,15 @@ main(cli)
 
 async function main(cli) {
   const app = await server({
+	Teams: {
+		  TeamOne: {
+			pin: ~~cli.flags.pinOne || ~~process.env.pinOne || 2,
+		  },
+		  TeamTwo: {
+			pin: ~~cli.flags.pinTwo || ~~process.env.pinTwo || 7,
+		  }
+	}
+  }, {
     redirectPort: cli.flags.redirectPort || process.env.REDIRECTPORT || 1338,
     port: cli.flags.port || process.env.PORT || 1337,
     public: cli.flags.public || './public'

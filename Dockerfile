@@ -2,12 +2,11 @@ FROM ubuntu
 
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get --yes upgrade && \
-    DEBIAN_FRONTEND=noninteractive apt-get --yes install git curl make g++ dnsmasq && \
+    DEBIAN_FRONTEND=noninteractive apt-get --yes install git curl make g++ dnsmasq patch gyp && \
     curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
     DEBIAN_FRONTEND=noninteractive apt-get --yes install nodejs
 
 WORKDIR /digitalfoosballtable
-
 
 RUN cd / && git clone https://github.com/mabels/digitalfoosballtable.git && echo done
 

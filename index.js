@@ -7,18 +7,27 @@ const browserify = require('browserify');
 const express = require('express');
 const resolveFrom = require('resolve-from');
 const sse = require('sse-express');
-const getGpio = require('./get-gpio');
+const wpi = require('wiring-pi');
 
-const gpio = getGpio({fallback: true});
-
-const TEAM_ONE_PIN = 5;
-const TEAM_TWO_PIN = 3;
-const TEAM_ONE = 'team1';
-const TEAM_TWO = 'team2';
+const cfg = {
+  Teams: {
+	  TeamOne: {
+		pin: 2,
+		name: 'team1'
+	  },
+	  TeamTwo: {
+		pin: 7,
+		name: 'team2'
+	  }
+  }
+};
 
 module.exports = server;
 
-function server(options = {}) {
+function server(clicfg, options = {}) {
+  // Object.assign(cfg.Teams, clicfg.Teams);
+  Object.assign(cfg.Teams.TeamOne, clicfg.Teams.TeamOne);
+  Object.assign(cfg.Teams.TeamTwo, clicfg.Teams.TeamTwo);
   return new Promise((resolve) => {
     const game = new Game();
 
@@ -43,16 +52,16 @@ function server(options = {}) {
       console.log(`HTTP:${process.env.DOMAIN}:${options.port}`);
     }
 
-    gpio.setup(TEAM_ONE_PIN, gpio.DIR_IN, gpio.EDGE_FALLING);
-    gpio.setup(TEAM_TWO_PIN, gpio.DIR_IN, gpio.EDGE_FALLING);
-
-    gpio.on('change', function(channel, value) {
-      if (channel === TEAM_ONE_PIN) {
-        game.countScore(TEAM_ONE);
-      }
-      if (channel === TEAM_TWO_PIN) {
-        game.countScore(TEAM_TWO);
-      }
+    wpi.setup('wpi');
+    console.log(`runson: ${JSON.stringify(wpi.piBoardId())} ${wpi.piBoardRev()}`);
+    Object.values(cfg.Teams).forEach(team => {
+      console.log(`team on: ${team.name} ${team.pin}`);
+      wpi.pinMode(team.pin, wpi.INPUT);
+      wpi.pullUpDnControl(team.pin, wpi.PUD_UP);
+      wpi.wiringPiISR(team.pin, wpi.INT_EDGE_FALLING, function(delta) {
+	  console.log(`${team.name} Pin ${team.pin} changed to LOW (', delta, ')`);
+          game.countScore(team.name);
+      });
     });
 
     const app = express()
@@ -183,11 +192,11 @@ class Game extends EventEmitter {
 
     this.lastScoreTime = Date.now();
 
-    if (team === TEAM_ONE) {
+    if (team === cfg.Teams.TeamOne.name) {
       this.team1Score = Math.min(this.team1Score + 1, 6);
     }
 
-    if (team === TEAM_TWO) {
+    if (team === cfg.Teams.TeamTwo.name) {
       this.team2Score = Math.min(this.team2Score + 1, 6);
     }
 
